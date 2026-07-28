@@ -63,3 +63,34 @@ Planned implementation:
 - One query-parameter endpoint
 - Swagger UI testing
 - Postman testing
+
+# Day 2 — Routing and Request Inputs
+
+Day 2 focuses on receiving, validating, and processing different types of input in FastAPI.
+
+The project implements a temporary in-memory Student API using:
+
+- Path parameters
+- Query parameters
+- Request bodies
+- Python type annotations
+- Pydantic models
+- Enums
+- FastAPI validation
+- Filtering
+- Route ordering
+
+No database is used yet. Student data is stored temporarily in a Python list and is deleted whenever the server restarts.
+
+---
+
+## Concepts Practised
+
+### Path Parameters
+
+Path parameters identify a specific resource.
+
+Example:
+
+```text
+GET /students/1
