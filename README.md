@@ -94,3 +94,63 @@ Example:
 
 ```text
 GET /students/1
+
+# Day 3 — Pydantic Models, Response Schemas and API Errors
+
+## Overview
+
+This project is part of my FastAPI backend engineering roadmap.
+
+Day 3 focuses on creating clear API contracts for incoming and outgoing data using Pydantic models.
+
+The Student API now supports:
+
+- Pydantic request models
+- Separate response models
+- Nested schemas
+- Field constraints
+- Request validation
+- Response filtering
+- Serialization
+- Correct HTTP status codes
+- API errors using `HTTPException`
+
+The project still uses temporary in-memory storage. PostgreSQL will be introduced later.
+
+---
+
+## Learning Objectives
+
+By completing Day 3, I learned how to:
+
+- Define structured request bodies using Pydantic
+- Separate input schemas from output schemas
+- Validate fields using `Field`
+- Create nested models
+- Convert Pydantic objects using `model_dump()`
+- Control API output using `response_model`
+- Serialize Python data into JSON responses
+- Use appropriate HTTP status codes
+- Raise proper API errors using `HTTPException`
+- Separate structural validation from business validation
+
+---
+
+# Request and Response Flow
+
+```text
+Client sends JSON
+        ↓
+Pydantic validates the request body
+        ↓
+FastAPI creates a Python model object
+        ↓
+Endpoint business logic executes
+        ↓
+Endpoint returns Python data
+        ↓
+response_model validates and filters the response
+        ↓
+FastAPI serializes the data
+        ↓
+Client receives JSON
