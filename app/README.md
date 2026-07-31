@@ -154,3 +154,218 @@ response_model validates and filters the response
 FastAPI serializes the data
         ↓
 Client receives JSON
+
+
+# Day 4 — CRUD and Project Structure
+
+Day 4 focuses on completing CRUD operations and separating the Student API into clean layers.
+
+The project still uses temporary in-memory storage, so data disappears when the server restarts.
+
+## Topics Covered
+
+- CRUD operations
+- `APIRouter`
+- Router inclusion
+- Repository pattern
+- Service layer
+- Dependency injection
+- Custom exceptions
+- `PUT` updates
+- `DELETE` operations
+- Clean project structure
+
+---
+
+## CRUD Endpoints
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `POST` | `/students` | Create a student |
+| `GET` | `/students` | List students |
+| `GET` | `/students/search` | Search by name |
+| `GET` | `/students/{student_id}` | Get one student |
+| `PUT` | `/students/{student_id}` | Update a student |
+| `DELETE` | `/students/{student_id}` | Delete a student |
+
+---
+
+## Architecture
+
+```text
+Client
+  ↓
+Router
+  ↓
+Service
+  ↓
+Repository
+  ↓
+In-memory students list
+```
+
+### Router
+
+Handles:
+
+- URLs and HTTP methods
+- Request validation
+- Response models
+- Status codes
+- Converting custom exceptions into `HTTPException`
+
+### Service
+
+Handles:
+
+- Business logic
+- Duplicate email checks
+- Missing student checks
+- Converting Pydantic models using `model_dump()`
+
+### Repository
+
+Handles:
+
+- The students list
+- Creating IDs
+- Creating, reading, searching, updating and deleting students
+
+---
+
+## Project Structure
+
+```text
+app/
+├── main.py
+├── api/
+│   └── routers/
+│       └── students.py
+├── core/
+│   └── exceptions.py
+├── dependencies/
+│   └── students.py
+├── repositories/
+│   └── student_repository.py
+├── services/
+│   └── student_service.py
+└── schemas/
+    └── student.py
+```
+
+---
+
+## Repository Storage
+
+The temporary students list belongs inside the repository:
+
+```python
+class InMemoryStudentRepository:
+    def __init__(self) -> None:
+        self._students: list[dict[str, object]] = []
+        self._next_id: int = 1
+```
+
+The repository implements:
+
+```text
+create
+list_all
+get_by_id
+get_by_email
+search_by_name
+update
+delete
+```
+
+A separate `_next_id` counter prevents duplicate IDs after deletion.
+
+---
+
+## Input and Output Flow
+
+```text
+Client JSON
+    ↓
+Router: StudentCreate or StudentUpdate
+    ↓
+Service: Pydantic model
+    ↓ model_dump()
+Repository: dictionary
+```
+
+Output:
+
+```text
+Repository: dictionary
+    ↓
+Service: dictionary
+    ↓
+Router response_model
+    ↓
+Client JSON
+```
+
+---
+
+## Dependency Injection
+
+One shared repository and service are created:
+
+```python
+student_repository = InMemoryStudentRepository()
+student_service = StudentService(student_repository)
+
+
+def get_student_service() -> StudentService:
+    return student_service
+```
+
+The router receives the service using `Depends`.
+
+---
+
+## Error Handling
+
+The service raises custom exceptions:
+
+```text
+StudentNotFoundError
+DuplicateStudentEmailError
+```
+
+The router converts them into HTTP responses:
+
+| Error | Status |
+|---|---:|
+| Student not found | `404 Not Found` |
+| Duplicate email | `409 Conflict` |
+| Invalid request data | `422 Unprocessable Content` |
+
+---
+
+## Status Codes
+
+| Operation | Status |
+|---|---:|
+| Create student | `201 Created` |
+| Read student | `200 OK` |
+| Update student | `200 OK` |
+| Delete student | `204 No Content` |
+
+---
+
+## Lessons Learned
+
+- Routers handle HTTP concerns.
+- Services handle business rules.
+- Repositories handle data access.
+- Schemas define API contracts.
+- Dependencies provide shared services.
+- Custom exceptions keep business logic separate from FastAPI.
+- `PUT` replaces the complete student data while preserving the ID.
+- A successful `DELETE` returns `204 No Content`.
+
+---
+
+

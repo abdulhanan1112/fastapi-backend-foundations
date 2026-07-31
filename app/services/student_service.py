@@ -21,17 +21,17 @@ class StudentService:
         return repository.list_all()
 
     
-    def get_student(self,student_id:int) -> dict[str,object]:
+    def get_student_by_id(self,student_id:int) -> dict[str,object]:
         student=repository.get_by_id(student_id)
         if student is None:
             raise StudentNotFoundError(student_id)
         return student
         
 
-    def update_student(self,student_data : StudentCreate) -> dict[str,object]:
-        student = repository.update(student_data.model_dump())
+    def update_student(self,student_id:int,student_data : StudentCreate) -> dict[str,object]:
+        student = repository.update(student_id,student_data.model_dump())
         if student is None:
-            raise StudentNotFoundError(student_data.id)
+            raise StudentNotFoundError(student_id.id)
 
         return student
 
