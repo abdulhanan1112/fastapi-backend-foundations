@@ -5,7 +5,7 @@ from app.services.student_service import StudentService
 from fastapi import  status
 from app.schemas.student import StudentResponse
 from app.schemas.student import StudentCreate
-from fastapi import APIRouter,Depends
+from fastapi import APIRouter,Depends,Path
 from app.core.exceptions import StudentNotFoundError
 from fastapi import HTTPException
 
@@ -48,10 +48,10 @@ def get_all_student(student_service : StudentServiceDependency) ->list[dict[str,
 # to get student by id
 @router.get(
     '/{student_id}',
-    response_model=list[StudentResponse],
+    response_model=StudentResponse,
     status_code=status.HTTP_200_OK
 )
-def get_student_by_id(student_id :Annotated[int,Path(gt=1,lt=500)],student_service : StudentServiceDependency) -> dict[str,object]:
+def get_student_by_id(student_id :Annotated[int,Path(gt=0,lt=500)],student_service : StudentServiceDependency) -> dict[str,object]:
     try:
         return student_service.get_student_by_id(student_id)
     except StudentNotFoundError as exc:
@@ -60,19 +60,19 @@ def get_student_by_id(student_id :Annotated[int,Path(gt=1,lt=500)],student_servi
             detail=str(exc)
         ) from exc
 
-@router.put(
-    '/{student_id}',
-    status_code=status.HTTP_200_OK,
-    response_model=StudentResponse
-)        
-def update_student(student_id:int,student_data : StudentCreate,student_service : StudentServiceDependency) -> dict[str,object]:
-    try:
-        return student_service.update_student(student_id,student_data)
-    except StudentNotFoundError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=str(exc)
-        ) from exc
+# @router.put(
+#     '/{student_id}',
+#     status_code=status.HTTP_200_OK,
+#     response_model=StudentResponse
+# )        
+# def update_student(student_id:int,student_data : StudentCreate,student_service : StudentServiceDependency) -> dict[str,object]:
+#     try:
+#         return student_service.update_student(student_id,student_data)
+#     except StudentNotFoundError as exc:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail=str(exc)
+#         ) from exc
 
 # to delete student by id
 @router.delete(
