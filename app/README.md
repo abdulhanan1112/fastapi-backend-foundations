@@ -367,5 +367,214 @@ The router converts them into HTTP responses:
 - A successful `DELETE` returns `204 No Content`.
 
 ---
+# Day 5 — Backend Python Skills
+
+Day 5 focuses on Python concepts that are important for building maintainable FastAPI applications.
+
+## Topics Covered
+
+- Type hints
+- Dataclasses vs Pydantic models
+- Custom exceptions
+- Context managers
+- Environment variables
+- Application settings
+- Logging
+- `async` and `await`
+- Blocking vs non-blocking operations
+
+---
+
+## Application Settings
+
+Application configuration is moved outside the source code using `.env`.
+
+Example:
+
+```env
+APP_NAME=FastAPI Backend Foundations
+APP_VERSION=1.0.0
+DEBUG=true
+LOG_LEVEL=INFO
+```
+
+Settings are loaded using `pydantic-settings`.
+
+```text
+.env
+  ↓
+Settings
+  ↓
+FastAPI application
+```
+
+`.env` is ignored by Git, while `.env.example` provides safe example configuration.
+
+---
+
+## Logging
+
+A reusable logging configuration was added.
+
+Each module creates its logger using:
+
+```python
+logger = logging.getLogger(__name__)
+```
+
+Logging levels used:
+
+| Level | Purpose |
+|---|---|
+| `DEBUG` | Detailed development information |
+| `INFO` | Successful important operations |
+| `WARNING` | Expected but unusual situations |
+| `ERROR` | Failed technical operations |
+
+Examples:
+
+```text
+student_created student_id=1
+student_updated student_id=1
+student_deleted student_id=1
+student_not_found student_id=10
+```
+
+---
+
+## Timing Context Manager
+
+A reusable context manager was created to measure execution time.
+
+```python
+with measure_time("operation_name"):
+    ...
+```
+
+Flow:
+
+```text
+Start timer
+    ↓
+Execute operation
+    ↓
+Calculate elapsed time
+    ↓
+Write timing log
+```
+
+The `finally` block ensures that execution time is recorded even when an exception occurs.
+
+---
+
+## Async and Blocking Operations
+
+Three experiment endpoints were created:
+
+```text
+GET /experiments/non-blocking
+GET /experiments/blocked-event-loop
+GET /experiments/threadpool-wait
+```
+
+### Non-blocking
+
+```python
+async def
+```
+
+with:
+
+```python
+await asyncio.sleep()
+```
+
+allows the event loop to work on other requests while waiting.
+
+### Blocking inside async
+
+```python
+async def
+```
+
+with:
+
+```python
+time.sleep()
+```
+
+blocks the event loop and delays other requests.
+
+### Synchronous route
+
+```python
+def
+```
+
+with a blocking operation is handled by FastAPI using a thread pool.
+
+---
+
+## Key Async Lesson
+
+```text
+async def + await non-blocking operation
+→ good for asynchronous I/O
+
+async def + blocking operation
+→ blocks the event loop
+
+def + blocking operation
+→ FastAPI can run it in a thread pool
+```
+
+`async` should not be added to every function automatically.
+
+The function style should match the operation or library being used.
+
+---
+
+## Updated Structure
+
+```text
+app/
+├── api/
+│   └── routers/
+│       ├── students.py
+│       └── experiments.py
+│
+├── core/
+│   ├── config.py
+│   ├── exceptions.py
+│   ├── logging.py
+│   └── timing.py
+│
+├── repositories/
+├── services/
+├── schemas/
+├── dependencies/
+└── main.py
+
+.env
+.env.example
+```
+
+---
+
+## Lessons Learned
+
+- Type hints make function contracts clearer.
+- Pydantic is useful for validating external API data.
+- Dataclasses can represent trusted internal data.
+- Environment variables separate configuration from code.
+- `.env` should not be committed to Git.
+- Logging is better than using `print()` for backend applications.
+- Context managers handle setup and cleanup reliably.
+- `async` is mainly useful for non-blocking I/O.
+- Blocking code inside `async def` can block the event loop.
+- FastAPI can execute synchronous route functions in a thread pool.
+
+---
+
 
 

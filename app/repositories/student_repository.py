@@ -7,8 +7,8 @@ class InMemoryStudentRepository:
 
 
     def create(self,student_data : dict[str,object]) -> dict[str,object]:
-        _students.append({
-            "id" : _next_id,
+        self._students.append({
+            "id" :self. _next_id,
             **student_data
         })
         self._next_id=self._next_id+1
@@ -35,7 +35,10 @@ class InMemoryStudentRepository:
     def update(self,student_id : int,student_data : dict[str,object]) -> dict[str,object] | None:
         for i,student in enumerate(self._students):
             if student["id"] == student_id:
-                self._students[i]=student_data
+                self._students[i]={
+                    "id" : student["id"],
+                    **student_data
+                }
                 return self._students[i]
     
 
